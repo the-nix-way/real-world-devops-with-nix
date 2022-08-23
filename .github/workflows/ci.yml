@@ -1,0 +1,52 @@
+name: Deploy
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: deploy
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v15
+        with:
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Cachix for Nix caching
+        uses: cachix/cachix-action@v10
+        with:
+          name: "${{ secrets.CACHIX_CACHE }}"
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: Nixbuild setup
+        uses: nixbuild/nixbuild-action@v12
+        with:
+          nixbuild_ssh_key: "${{ secrets.NIXBUILD_SSH_KEY }}"
+      - name: Build TODOs service Docker container
+        run: |
+          nix build ".#docker"
+          nix path-info --recursive | cachix push ${{ secrets.CACHIX_CACHE }}
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          username: "${{ secrets.DOCKER_USERNAME }}"
+          password: "${{ secrets.DOCKER_ACCESS_TOKEN }}"
+      - name: Load and push image
+        run: |
+          export TAG=$(docker load < result | grep -Po 'Loaded image: \K.*')
+          docker push "${TAG}"
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+      - name: Digital Ocean login
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}"
+      - name: Deploy image to Kubernetes
+        run: |
+          echo "Fetching Kubernetes config from cluster ${{ secrets.K8S_CLUSTER_NAME }}"
+          nix develop --command doctl kubernetes cluster kubeconfig save ${{ secrets.K8S_CLUSTER_NAME }}
+          KUBE_CTX="do-nyc1-${{ secrets.K8S_CLUSTER_NAME }}"
+          nix develop --command kubectx "${KUBE_CTX}"
+          nix develop --command kubectl set image deployment.apps/todos-deployment todos="${{ env.TAG }}"
+          nix develop --command kubectl rollout restart deployment.apps/todos-deployment

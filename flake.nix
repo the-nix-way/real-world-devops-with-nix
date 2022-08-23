@@ -1,31 +1,85 @@
 {
-  description = "A Nix-flake-based Go 1.17 development environment";
+  description = "TODOs service";
 
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs";
+    flake-utils.url = "github:numtide/flake-utils";
+    gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs =
     { self
-    , flake-utils
     , nixpkgs
+    , flake-utils
+    , gitignore
     }:
 
     flake-utils.lib.eachDefaultSystem (system:
     let
+      # Constants
+      name = "todos";
       goVersion = 19;
-      overlays = [ (self: super: { go = super."go_1_${toString goVersion}"; }) ];
-      pkgs = import nixpkgs { inherit overlays system; };
+      dockerMeta = {
+        org = "lucperkins";
+        image = "todos";
+      };
+      target = {
+        os = "linux";
+        arch = "amd64";
+      };
+
+      # Set up Nixpkgs
+      overlays = [
+        (self: super: rec {
+          go = super."go_1_${toString goVersion}";
+        })
+      ];
+
+      pkgs = import nixpkgs {
+        inherit overlays system;
+      };
     in
     {
-      devShell = pkgs.mkShell {
+      devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [
-          # DevOps
+          # Platform-non-specific Go (for local development)
+          go
+
+          # Docker CLI
+          docker
+
+          # Kubernetes
+          kubectl
+          kubectx
+
+          # Terraform
           terraform
-          terragrunt
           tflint
+
+          # Digital Ocean
+          doctl
         ];
+      };
+
+      packages = rec {
+        default = todos;
+
+        todos = pkgs.buildGoModule {
+          name = "todos";
+          src = gitignore.lib.gitignoreSource ./.;
+          subPackages = [ "cmd/todos" ];
+          vendorSha256 = "sha256-fwJTg/HqDAI12mF1u/BlnG52yaAlaIMzsILDDZuETrI=";
+        };
+
+        docker =
+          pkgs.dockerTools.buildLayeredImage {
+            name = "${dockerMeta.org}/${dockerMeta.image}";
+            config = {
+              Cmd = [ "${self.packages.${system}.default}/bin/todos" ];
+              ExposedPorts."8080/tcp" = { };
+            };
+            maxLayers = 120;
+          };
       };
     });
 }

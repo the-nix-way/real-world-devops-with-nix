@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-deployment
+  labels:
+    app: todos
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todos
+  template:
+    metadata:
+      labels:
+        app: todos
+    spec:
+      containers:
+        - name: todos
+          image: lucperkins/todos:v1.0.0
+          ports:
+            - containerPort: 8080
