@@ -1,5 +1,6 @@
 // Root manifest
 terraform {
+  required_version = "1.2.9"
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -30,15 +31,11 @@ provider "kubernetes" {
 }
 
 // Variables
-locals {
-  cluster_name = "${var.k8s_cluster_name_prefix}-${random_id.cluster_name.hex}"
-}
-
 variable "do_token" {
   type = string
 }
 
-variable "k8s_cluster_name_prefix" {
+variable "k8s_cluster_name" {
   type = string
 }
 
@@ -69,12 +66,8 @@ output "k8s_context" {
 }
 
 // Resources
-resource "random_id" "cluster_name" {
-  byte_length = 5
-}
-
 resource "digitalocean_kubernetes_cluster" "devops" {
-  name    = local.cluster_name
+  name    = var.k8s_cluster_name
   region  = var.k8s_region
   version = data.digitalocean_kubernetes_versions.current.latest_version
   node_pool {
