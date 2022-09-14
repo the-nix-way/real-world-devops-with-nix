@@ -10,6 +10,7 @@ on:
 jobs:
   update-flake:
     runs-on: ubuntu-latest
+    environment: upkeep
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
