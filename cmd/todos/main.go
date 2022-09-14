@@ -6,10 +6,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type todo struct {
+    ID int64    `json:"id"`
+    Task string `json:"task"`
+    Done bool   `json:"done"`
+}
+
 func main() {
+    todos := []todo{
+        todo{
+            ID: 1,
+            Task: "update the TODO service deployment in a super slick way using Nix",
+            Done: true,
+        },
+    }
+
     r := gin.Default()
-    r.GET("/", func(c *gin.Context) {
-	    c.String(http.StatusOK, "Hello to the Summer of Nix folks!")
+    r.GET("/todos", func(c *gin.Context) {
+	    c.JSON(http.StatusOK, todos)
     })
     r.Run()
 }

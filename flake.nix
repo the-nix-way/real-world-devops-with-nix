@@ -47,7 +47,7 @@
             pkgs.dockerTools.buildLayeredImage {
               name = "${dockerMeta.org}/${dockerMeta.image}";
               config = {
-                Cmd = [ "${self.packages.${system}.default}/bin/todos" ];
+                Cmd = [ "${self.packages.${system}.todos}/bin/todos" ];
                 ExposedPorts."8080/tcp" = { };
               };
               maxLayers = 120;
