@@ -14,72 +14,74 @@
     , gitignore
     }:
 
-    flake-utils.lib.eachDefaultSystem (system:
     let
-      # Constants
       name = "todos";
       goVersion = 19;
-      dockerMeta = {
-        org = "lucperkins";
-        image = "todos";
+      goOverlay = self: super: {
+        go = super."go_1_${toString goVersion}";
       };
-      target = {
-        os = "linux";
-        arch = "amd64";
-      };
+      overlays = [ goOverlay ];
+    in
+    # The package and Docker image are only intended to be built on amd64 Linux
+    flake-utils.lib.eachSystem [ "x86_64-linux" ]
+      (system:
+      let
+        pkgs = import nixpkgs { inherit overlays system; };
+        dockerMeta = {
+          org = "lucperkins";
+          image = "todos";
+        };
+      in
+      {
+        packages = rec {
+          default = todos;
 
-      # Set up Nixpkgs
-      overlays = [
-        (self: super: rec {
-          go = super."go_1_${toString goVersion}";
-        })
-      ];
+          todos = pkgs.buildGoModule {
+            name = "todos";
+            src = gitignore.lib.gitignoreSource ./.;
+            subPackages = [ "cmd/todos" ];
+            vendorSha256 = "sha256-fwJTg/HqDAI12mF1u/BlnG52yaAlaIMzsILDDZuETrI=";
+          };
 
+          docker =
+            pkgs.dockerTools.buildLayeredImage {
+              name = "${dockerMeta.org}/${dockerMeta.image}";
+              config = {
+                Cmd = [ "${self.packages.${system}.default}/bin/todos" ];
+                ExposedPorts."8080/tcp" = { };
+              };
+              maxLayers = 120;
+            };
+        };
+      }) //
+    # The shell environment is intended for all systems
+    flake-utils.lib.eachDefaultSystem (system:
+    let
       pkgs = import nixpkgs {
         inherit overlays system;
       };
     in
     {
       devShells.default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          # Platform-non-specific Go (for local development)
-          go
+        buildInputs = with pkgs;
+          [
+            # Platform-non-specific Go (for local development)
+            go
 
-          # Docker CLI
-          docker
+            # Docker CLI
+            docker
 
-          # Kubernetes
-          kubectl
-          kubectx
+            # Kubernetes
+            kubectl
+            kubectx
 
-          # Terraform
-          terraform
-          tflint
+            # Terraform
+            terraform
+            tflint
 
-          # Digital Ocean
-          doctl
-        ];
-      };
-
-      packages = rec {
-        default = todos;
-
-        todos = pkgs.buildGoModule {
-          name = "todos";
-          src = gitignore.lib.gitignoreSource ./.;
-          subPackages = [ "cmd/todos" ];
-          vendorSha256 = "sha256-fwJTg/HqDAI12mF1u/BlnG52yaAlaIMzsILDDZuETrI=";
-        };
-
-        docker =
-          pkgs.dockerTools.buildLayeredImage {
-            name = "${dockerMeta.org}/${dockerMeta.image}";
-            config = {
-              Cmd = [ "${self.packages.${system}.default}/bin/todos" ];
-              ExposedPorts."8080/tcp" = { };
-            };
-            maxLayers = 120;
-          };
+            # Digital Ocean
+            doctl
+          ];
       };
     });
 }
