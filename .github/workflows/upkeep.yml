@@ -17,11 +17,6 @@ jobs:
         with:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Cachix for Nix caching
-        uses: cachix/cachix-action@v10
-        with:
-          name: "${{ secrets.CACHIX_CACHE }}"
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Update the flake
         run: nix flake update
       - name: Create Pull Request

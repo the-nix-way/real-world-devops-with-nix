@@ -11,8 +11,7 @@ context. The main moving parts:
 * The Kubernetes configuration in [`k8s/deployment.yaml`](./k8s/deployment.yaml)
   defines the Kubernetes [Deployment] for the service.
 * The [GitHub Actions][actions] pipeline does the following:
-  * Builds a [Docker] image for the TODOs service using [Nix] (with caching
-    provided by [Cachix]).
+  * Builds a [Docker] image for the TODOs service using [Nix]
   * Pushes the image to [Docker Hub][hub]
   * Updates the existing deployment to use the new image
   * Restarts the deployment to complete the upgrade
@@ -28,7 +27,6 @@ Some other things to note:
   ```
 
 [actions]: https://github.com/features/actions
-[cachix]: https://cachix.org
 [deployment]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment
 [docker]: https://docker.com
 [do]: https://digitalocean.com

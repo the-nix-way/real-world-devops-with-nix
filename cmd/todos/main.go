@@ -14,7 +14,8 @@ type todo struct {
 
 func main() {
     todos := []todo{
-        todo{
+        // Update this later
+        {
             ID: 1,
             Task: "update the TODO service deployment in a super slick way using Nix",
             Done: false,
