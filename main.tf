@@ -70,6 +70,7 @@ resource "digitalocean_kubernetes_cluster" "devops" {
   name    = var.k8s_cluster_name
   region  = var.k8s_region
   version = data.digitalocean_kubernetes_versions.current.latest_version
+
   node_pool {
     name       = "default"
     size       = var.k8s_worker_size
