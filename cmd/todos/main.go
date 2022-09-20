@@ -14,18 +14,11 @@ type todo struct {
 
 func main() {
     todos := []todo{
-        // Update this later
         {
             ID: 1,
-            Task: "update the TODO service deployment in a super slick way using Nix",
+            Task: "venture forth and continue exploring Nix and DevOps",
             Done: false,
-            //Done: true,
         },
-        /*{
-            ID: 2,
-            Task: "continue exploring Nix and DevOps",
-            Done: false,
-        },*/
     }
 
     r := gin.Default()
