@@ -19,7 +19,13 @@ func main() {
             ID: 1,
             Task: "update the TODO service deployment in a super slick way using Nix",
             Done: false,
+            //Done: true,
         },
+        /*{
+            ID: 2,
+            Task: "continue exploring Nix and DevOps",
+            Done: false,
+        },*/
     }
 
     r := gin.Default()
