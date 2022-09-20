@@ -3,18 +3,18 @@
 This example project is meant to demonstrate the power of [Nix] in a DevOps
 context. The main moving parts:
 
-* A simple "TODOs" web service written in [Go] in
+* A very simple "TODOs" web service written in [Go] in
   [`cmd/todos/main.go`](./cmd/todos/main.go). This service is built to be
-  deployed on a cluster [Kubernetes] on [Digital Ocean][do].
+  deployed on a [Kubernetes] cluster running on [Digital Ocean][do].
 * That cluster is stood up using a [Terraform] configuration in
   [`main.tf`](./main.tf) and [`terraform.tfvars`](./terraform.tfvars).
 * The Kubernetes configuration in [`k8s/deployment.yaml`](./k8s/deployment.yaml)
   defines the Kubernetes [Deployment] for the service.
-* The [GitHub Actions][actions] pipeline does the following:
+* The [GitHub Actions][actions] pipeline
   * Builds a [Docker] image for the TODOs service using [Nix]
   * Pushes the image to [Docker Hub][hub]
-  * Updates the existing deployment to use the new image
-  * Restarts the deployment to complete the upgrade
+  * Updates the existing [Deployment] to use the new image
+  * Restarts the [Deployment] to complete the upgrade
 
 Some other things to note:
 
