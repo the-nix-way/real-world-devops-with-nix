@@ -4,14 +4,12 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
-    gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs =
     { self
     , nixpkgs
     , flake-utils
-    , gitignore
     }:
 
     let
@@ -35,7 +33,7 @@
 
           todos = pkgs.buildGoModule {
             name = "todos";
-            src = gitignore.lib.gitignoreSource ./.;
+            src = ./.;
             subPackages = [ "cmd/todos" ];
             vendorSha256 = "sha256-fwJTg/HqDAI12mF1u/BlnG52yaAlaIMzsILDDZuETrI=";
           };
