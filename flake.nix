@@ -1,5 +1,5 @@
 {
-  description = "TODOs service";
+  description = "Real world DevOps with Nix";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
@@ -17,6 +17,7 @@
     let
       name = "todos";
       goVersion = 19;
+      # An overlay to set the Go version
       goOverlay = self: super: {
         go = super."go_1_${toString goVersion}";
       };
@@ -44,6 +45,7 @@
           };
 
           docker =
+            # A layered image means better caching and less bandwidth
             pkgs.dockerTools.buildLayeredImage {
               name = "${dockerMeta.org}/${dockerMeta.image}";
               config = {
