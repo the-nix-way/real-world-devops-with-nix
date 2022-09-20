@@ -28,10 +28,6 @@
       (system:
       let
         pkgs = import nixpkgs { inherit overlays system; };
-        dockerMeta = {
-          org = "lucperkins";
-          image = "todos";
-        };
       in
       {
         packages = rec {
@@ -47,7 +43,7 @@
           docker =
             # A layered image means better caching and less bandwidth
             pkgs.dockerTools.buildLayeredImage {
-              name = "${dockerMeta.org}/${dockerMeta.image}";
+              name = "lucperkins/todos";
               config = {
                 Cmd = [ "${self.packages.${system}.todos}/bin/todos" ];
                 ExposedPorts."8080/tcp" = { };
