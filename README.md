@@ -1,7 +1,10 @@
 # Real world DevOps with Nix
 
 This example project is meant to demonstrate the power of [Nix] in a DevOps
-context. The main moving parts:
+context. You can see this repo in action in my talk [Real world DevOps with
+Nix][video], which was part of the [Summer of Nix][son] video series in 2022.
+
+## Moving parts
 
 * A very simple "TODOs" web service written in [Go] in
   [`cmd/todos/main.go`](./cmd/todos/main.go). This service is built to be
@@ -34,4 +37,6 @@ Some other things to note:
 [hub]: https://hub.docker.com
 [kubernetes]: https://kubernetes.io
 [nix]: https://nixos.org
+[son]: https://www.youtube.com/playlist?list=PLt4-_lkyRrOMWyp5G-m_d1wtTcbBaOxZk
 [terraform]: https://terraform.io
+[video]: https://www.youtube.com/watch?v=LjyQ7baj-KM&t=2809s
