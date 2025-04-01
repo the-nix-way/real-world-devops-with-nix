@@ -24,7 +24,7 @@ jobs:
         uses: DeterminateSystems/flakehub-cache-action@main
 
       - name: Build TODOs service Docker container using Nix
-        run: nix build ".#dockerImages.x86-64-linux.default"
+        run: nix build ".#dockerImages.x86_64-linux.default"
         # Store the image in ./result
 
       - name: Docker login
